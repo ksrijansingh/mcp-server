@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+      http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+    <http:listener-config name="HTTP_8081" doc:name="HTTP Listener config">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+
+    <!-- retrieveAppointment flow -->
+    <flow name="retrieveAppointmentFlow">
+        <http:listener doc:name="HTTP Listener" config-ref="HTTP_8081" path="/mcp/retrieveAppointment" />
+        <logger level="INFO" message="MCP: Received retrieveAppointment payload: #[payload]" />
+        <set-variable variableName="appointment" value='{
+            "appointmentId": payload.appointmentId default "not-provided",
+            "date": "2025-12-31",
+            "time": "10:00",
+            "status": "FOUND"
+        }' />
+        <set-payload value='#[vars.appointment]' doc:name="Return payload" />
+    </flow>
+
+    <!-- modifyAppointment flow -->
+    <flow name="modifyAppointmentFlow">
+        <http:listener doc:name="HTTP Listener" config-ref="HTTP_8081" path="/mcp/modifyAppointment" />
+        <logger level="INFO" message="MCP: Received modifyAppointment payload: #[payload]" />
+        <set-variable variableName="updated" value='{
+            "appointmentId": payload.appointmentId,
+            "appointmentDate": payload.appointmentDate,
+            "appointmentTime": payload.appointmentTime,
+            "status": "UPDATED"
+        }' />
+        <set-payload value='#[vars.updated]' doc:name="Return payload" />
+    </flow>
+
+</mule>
